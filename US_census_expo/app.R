@@ -9,6 +9,8 @@ library(ggplot2)
 library(leaflet)
 library(tidyverse)
 
+# look into DT Table
+
 # Read in the rds files that were written for this app in the script. In order,
 # they are for the bar plot, then the map then the table.
 
