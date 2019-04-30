@@ -149,3 +149,15 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
               position = "bottomright")
   
   
+  # table of agg total pop attempt
+  
+  agg_total_pop %>% gt() %>% 
+    cols_label(geography = "State",
+               totalpop.17 = "2017",
+               totalpop.16 = "2016",
+               change = "Change") %>% 
+    tab_header("Change in Total Population Counts") %>% 
+    tab_spanner(label = "In the first year of Trump's Presidency",
+                columns = vars(geography, totalpop.17, totalpop.16, change))
+  
+  

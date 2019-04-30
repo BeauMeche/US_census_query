@@ -30,7 +30,9 @@ ui <- fluidPage(
           tabPanel("Census Totals '17",
                    leafletOptions("pop_17")),
           tabPanel("Population Flux",
-                   leafletOutput("big_map"))
+                   leafletOutput("big_map")),
+          tabPanel("Tabled Data",
+                   gt_output("table"))
         )
       )
    )
@@ -133,6 +135,19 @@ server <- function(input, output) {
            direction = "auto")) %>%
        addLegend(pal = pal_1, values = ~all_us$totalpop.17, opacity = 0.7, title = NULL,
                  position = "bottomright")
+   })
+   
+   output$table <- render_gt({
+     
+     agg_total_pop_2 %>% gt() %>% 
+       cols_label(geography = "State",
+                  totalpop.17 = "2017",
+                  totalpop.16 = "2016",
+                  change = "Change") %>% 
+       tab_header("Change in Total Population Counts") %>% 
+       tab_spanner(label = "In the first year of Trump's Presidency",
+                   columns = vars(geography, totalpop.17, totalpop.16, change)) %>% 
+       tab_source_note("Source: the U.S. Census")
    })
 }
 
