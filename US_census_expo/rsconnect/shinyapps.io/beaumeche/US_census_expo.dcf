@@ -1,0 +1,12 @@
+name: US_census_expo
+title: US_census_expo
+username:
+account: beaumeche
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 900094
+bundleId: 2049754
+url: https://beaumeche.shinyapps.io/US_census_expo/
+when: 1556632842.33814
+asMultiple: FALSE
+asStatic: FALSE
