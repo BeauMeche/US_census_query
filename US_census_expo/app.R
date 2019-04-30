@@ -68,14 +68,21 @@ server <- function(input, output) {
     
     '<h3><b>About this Project</b></h3>
     <br/>
+    <h5><b>Population Flux:</b></h5>
+    This map shows, per state, the net population flow (flux) in the time span between 2016-2017.<br/><br/>
+    <h5><b>Young People:</b></h5>
+    Where are the young people? Are they in places with positive or negative net change? Any ideas regarding why?<br/><br/>
+    <h5><b>Tabled Data:</b></h5>
+    Here is the data table behind some of these graphics. Take a look!<br/><br/>
+    <h5><b>Data</b></h5>
     The data for this project comes from the U.S. Census Bureau via FactFinder. The data sets employed 
-    here can be found under educational attainment. <br/> Other data courtesy of the "tigris" package. 
+    here can be found under educational attainment.<br/> Other data courtesy of the "tigris" package. 
     <br/><br/>
     <a href="https://factfinder.census.gov/faces/nav/jsf/pages/guided_search.xhtml">Check out FactFinder here.</a>
     <br/><br/>
     <a href="https://github.com/BeauMeche/US_census_query">See the Github repository for this project</a>
     <br/><br/>
-    Acknoweldgements:<br/>
+    <h5><b>Acknoweldgements:</b></h5>
     Thanks to Preceptor, Albert, Claire, Dillon, Charles, Debora, Celine, and Stephanie for feedback, 
     advice, and input throughout the creation of this project.<br/>
     I would also like to thank Rstudio and Rstudio Community for providing so many exceptional resources.<br/><br/>
@@ -88,7 +95,7 @@ server <- function(input, output) {
      
      # Shooting for a horizontal bar chart of states with the most 18-24 people.
      
-     ggplot(young_2017) +
+     ggplot(youth_2017) +
        
        # Don't forget the stat argument... this can take a lot of time to
        # figure out otherwise.
