@@ -134,10 +134,11 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
     
     mutate(sum = totalpop.17 + totalpop.16) %>% select(-sum) %>% 
     mutate(change = ((totalpop.17 - totalpop.16))) %>% 
-    write_rds("aggregate_pop") %>% 
     
-    # I have written to a file twice here, I will return to remove one, but I
-    # don't want to do so now in case it corrupts the map.
+                
+                # write_rds("aggregate_pop") %>% 
+                # I have written to a file twice here, I will return to remove one, but I
+                # don't want to do so now in case it corrupts the map.
     
     write_rds("aggregate_pops")
   
