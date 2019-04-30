@@ -12,7 +12,7 @@ library(tidyverse)
 youth_2017 <- read_rds("young_people_locations")
 agg_total_pop_2 <- read_rds("aggregate_pops")
 states <- states()
-all_us <- geo_join(states, agg_total_pop, "NAME", "geography")
+all_us <- geo_join(states, agg_total_pop_2, "NAME", "geography")
 
 # Define UI for application
 ui <- fluidPage(
@@ -33,7 +33,7 @@ ui <- fluidPage(
       )
    )
 
-# Define server logic required to draw a histogram
+# Define server logic
 server <- function(input, output) {
    
    output$youth <- renderPlot({
@@ -48,17 +48,17 @@ server <- function(input, output) {
    })
    
    output$big_map <- renderLeaflet({
-     
+
      bins <- c(-45000, -15000, 0, 15000, 30000,
                45000, 100000, 200000, Inf)
-     
+
      pal <- colorBin("YlOrRd", domain = all_us$change, bins = bins)
-     
+
      labels <- sprintf(
        "<strong>%s</strong><br/>%g people",
        all_us$geography, all_us$change
      ) %>% lapply(htmltools::HTML)
-     
+
      leaflet(all_us) %>%
        setView(-96, 37.8, 3) %>%
        addProviderTiles("MapBox", options = providerTileOptions(
@@ -88,10 +88,7 @@ server <- function(input, output) {
    
    output$pop_17 <- renderLeaflet({
      
-     # bins <- c(-45000, -15000, 0, 15000, 30000,
-     #           45000, 100000, 200000, Inf)
-     
-     pal <- colorBin("YlOrRd", domain = all_us$totalpop.17)
+     pal_1 <- colorBin("YlOrRd", domain = all_us$totalpop.17)
      
      labels <- sprintf(
        "<strong>%s</strong><br/>%g people",
@@ -121,7 +118,7 @@ server <- function(input, output) {
            style = list("font-weight" = "normal", padding = "3px 8px"),
            textsize = "15px",
            direction = "auto")) %>%
-       addLegend(pal = pal, values = ~all_us$totalpop.17, opacity = 0.7, title = NULL,
+       addLegend(pal = pal_1, values = ~all_us$totalpop.17, opacity = 0.7, title = NULL,
                  position = "bottomright")
    })
 }

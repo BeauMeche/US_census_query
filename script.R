@@ -115,6 +115,37 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
               position = "bottomright")
   
   
+  pal <- colorBin("YlOrRd", domain = all_us$totalpop.17)
   
+  labels <- sprintf(
+    "<strong>%s</strong><br/>%g people",
+    all_us$geography, all_us$totalpop.17
+  ) %>% lapply(htmltools::HTML)
+  
+  leaflet(all_us) %>%
+    setView(-96, 37.8, 3) %>%
+    addProviderTiles("MapBox", options = providerTileOptions(
+      id = "mapbox.light",
+      accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>%
+    addPolygons(
+      fillColor = ~pal(totalpop.17),
+      weight = 2,
+      opacity = 1,
+      color = "white",
+      dashArray = "3",
+      fillOpacity = 0.7,
+      highlight = highlightOptions(
+        weight = 5,
+        color = "#750",
+        dashArray = "",
+        fillOpacity = 0.7,
+        bringToFront = TRUE),
+      label = labels,
+      labelOptions = labelOptions(
+        style = list("font-weight" = "normal", padding = "3px 8px"),
+        textsize = "15px",
+        direction = "auto")) %>%
+    addLegend(pal = pal, values = ~all_us$totalpop.17, opacity = 0.7, title = NULL,
+              position = "bottomright")
   
   
