@@ -23,6 +23,8 @@ ui <- fluidPage(
       # Show a plot of the generated distribution
       mainPanel(
         tabsetPanel(
+          tabPanel("About this Project",
+                   htmlOutput("about")),
           tabPanel("Young People",
                    plotOutput("youth")),
           tabPanel("Census Totals '17",
@@ -35,6 +37,17 @@ ui <- fluidPage(
 
 # Define server logic
 server <- function(input, output) {
+  
+  output$about <- renderText({
+    '<h3><b>About this Project</b></h3>
+    <br/>
+    The data for this project comes from the U.S. Census Bureau via FactFinder. The data sets employed here can be found under educational attainment.
+    <br/><br/>
+    <a href="https://factfinder.census.gov/faces/nav/jsf/pages/guided_search.xhtml">Check out FactFinder here.</a>
+    <br/><br/>
+    <a href="_____________________">See the Github repository for this project</a>'
+    
+  })
    
    output$youth <- renderPlot({
      ggplot(youth_2017) +
