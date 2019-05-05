@@ -59,12 +59,19 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
   # I am graphing young people, so selecting states and the 18-24 gap produces a
   # skinny data format.
   
-  select(geography, total_estimate_population_18_to_24_years) %>% 
+  
   
   # I want to show the most populated areas, so arrnaging in descending order
   # and grabbing the top 10 is the process.
+  mutate(totalpop = total_estimate_population_18_to_24_years + total_estimate_population_25_to_34_years +
+           total_estimate_population_35_to_44_years + total_estimate_population_45_to_64_years +
+           total_estimate_population_65_years_and_over) %>% 
   
-  arrange(desc(total_estimate_population_18_to_24_years)) %>% 
+  mutate(rat = total_estimate_population_18_to_24_years / totalpop) %>% 
+  
+  select(geography, rat) %>%
+  
+  arrange(desc(rat)) %>% 
   head(10) %>% 
   
   # Write this specific df to a file so that it can be passed to the shiny app
@@ -81,7 +88,7 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
         # Don't forget the stat argument... this can take a lot of time to
         # figure out otherwise.
         
-      geom_bar(stat = "identity", aes(x = geography, y = total_estimate_population_18_to_24_years, 
+      geom_bar(stat = "identity", aes(x = geography, y = rat, 
                                       fill = geography), show.legend = FALSE) +
         
         # Per Healey, invversion is cool.
