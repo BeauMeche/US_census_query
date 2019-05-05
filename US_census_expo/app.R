@@ -40,6 +40,9 @@ ui <- fluidPage(
           # the backround stuff.
           
           tabPanel("Population Flux",
+                   varSelectInput(vars, "Choose an Option Below:",
+                                  agg_total_pop_2, selected = "change",
+                                  multiple = FALSE),
                    leafletOutput("big_map")),
           tabPanel("Young People",
                    plotOutput("youth")),
@@ -98,22 +101,23 @@ server <- function(input, output) {
      # Shooting for a horizontal bar chart of states with the most 18-24 people.
      
      ggplot(youth_2017) +
-       
+   
        # Don't forget the stat argument... this can take a lot of time to
        # figure out otherwise.
        
-       geom_bar(stat = "identity", aes(x = geography, y = total_estimate_population_18_to_24_years, 
+       geom_bar(stat = "identity", aes(x = geography, y = rat, 
                                        fill = geography), show.legend = FALSE) +
        
        # Per Healey, invversion is cool.
-       
-       coord_flip() + theme_fivethirtyeight() +
+       scale_y_continuous(labels=function(y) paste0(y,"%")) +
+       theme_fivethirtyeight() + 
+       coord_flip() +
        
        # Always label and cite, otherwise you have worked for nothing.
        
        labs(
-         title = "2017: Where are the Young People?",
-         subtitle = "Shown: the 10 states with the most people aged 18 to 24", 
+         title = "Where are the young people?",
+         subtitle = "States with the highest contingent of people age 18 to 24", 
          caption = "Source: the U.S. Census")
    })
    
@@ -133,7 +137,7 @@ server <- function(input, output) {
 
      labels <- sprintf(
        "<strong>%s</strong><br/>%g people",
-       all_us$geography, all_us$change
+       all_us$geography, all_us$vars
      ) %>% lapply(htmltools::HTML)
      
      # Create the actual leaflet plot:
@@ -152,7 +156,7 @@ server <- function(input, output) {
        # you with the details.
        
        addPolygons(
-         fillColor = ~pal(change),
+         fillColor = ~pal(vars),
          weight = 2,
          opacity = 1,
          color = "white",
@@ -182,7 +186,7 @@ server <- function(input, output) {
        # The legend is mandatory here, otherwise the colors are pointless and the
        # map is less interesting.
        
-       addLegend(pal = pal, values = ~all_us$change, opacity = 0.7, title = NULL,
+       addLegend(pal = pal, values = ~all_us$vars, opacity = 0.7, title = NULL,
                  position = "bottomright")
    })
    

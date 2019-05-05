@@ -12,7 +12,7 @@ library(ggthemes)
 library(ggplot2)
 library(tigris)
 library(tidyverse)
-
+library(scales)
 # I have previously acquired the sourcce files and they are in my personal
 # GitHub, so linking them here is safe. Also census data doesn't change.
 
@@ -67,7 +67,7 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
            total_estimate_population_35_to_44_years + total_estimate_population_45_to_64_years +
            total_estimate_population_65_years_and_over) %>% 
   
-  mutate(rat = total_estimate_population_18_to_24_years / totalpop) %>% 
+  mutate(rat = (total_estimate_population_18_to_24_years / totalpop)*100) %>% 
   
   select(geography, rat) %>%
   
@@ -92,14 +92,15 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
                                       fill = geography), show.legend = FALSE) +
         
         # Per Healey, invversion is cool.
-        
-      coord_flip() + theme_fivethirtyeight() +
+        scale_y_continuous(labels=function(y) paste0(y,"%")) +
+        theme_fivethirtyeight() + 
+        coord_flip() +
         
         # Always label and cite, otherwise you have worked for nothing.
         
       labs(
         title = "Where are the young people?",
-        subtitle = "Shown: the 10 states with the most people aged 18 to 24", 
+        subtitle = "States with the highest contingent of people age 18 to 24", 
         caption = "Source: the U.S. Census")
 
 # Total populations and  aggregate table creation: now I want to see the total
