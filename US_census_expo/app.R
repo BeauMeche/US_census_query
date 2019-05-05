@@ -122,12 +122,11 @@ server <- function(input, output) {
      # I edited this a bit to have a more even color scheme distribution, it
      # pertains to the legend's bracketing.
      
-     bins <- c(-45000, -15000, 0, 15000, 30000,
-               45000, 100000, 200000, Inf)
+     bins <- c(-45000, -25000, -15000, 0, 45000, 125000, 200000, Inf)
      
      # Color palette, and domain by variable, bins arg goes here.
 
-     pal <- colorBin("YlOrRd", domain = all_us$change, bins = bins)
+     pal <- colorBin("RdYlGn", domain = all_us$change, bins = bins)
      
      # Make the labels bold, assign the variable shown by  state.
      # Thanks to Rstudio for the help with this!
