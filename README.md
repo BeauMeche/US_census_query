@@ -2,4 +2,4 @@
 
 * ### Goal: to look at mobility of young people with degrees vs. the remainder of their peers.
 
-* ### Current: Total population flux and location of said young people.
+* ### Current: Total population flux, top concentration of young people by percentage, and a searchable table of all plotted data.
