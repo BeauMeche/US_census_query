@@ -199,17 +199,17 @@ server <- function(input, output) {
     
     else if (input$vars == "totalpop.17"){
       
-      bins <- c(-45000, -25000, -15000, 0, 45000, 125000, 200000, Inf)
+      bins <- c( 0, 500000, 1000000, 3000000, 5000000, 10000000, 20000000, Inf)
       
       # Color palette, and domain by variable, bins arg goes here.
       
-      pal <- colorBin("RdYlGn", domain = all_us$totalpop.17, bins = bins)
+      pal <- colorBin("Oranges", domain = all_us$totalpop.17, bins = bins)
       
       # Make the labels bold, assign the variable shown by  state.
       # Thanks to Rstudio for the help with this!
       
       labels <- sprintf(
-        "<strong>%s</strong><br/>%g people",
+        "<strong>%s</strong><br/>%g million people",
         all_us$geography, round(all_us$totalpop.17 / 1000000, 1)
       ) %>% lapply(htmltools::HTML)
       
@@ -266,18 +266,18 @@ server <- function(input, output) {
     
     else{
       
-      bins <- c(-45000, -25000, -15000, 0, 45000, 125000, 200000, Inf)
+      bins <- c( 0, 500000, 1000000, 3000000, 5000000, 10000000, 20000000, Inf)
       
       # Color palette, and domain by variable, bins arg goes here.
       
-      pal <- colorBin("RdYlGn", domain = all_us$totalpop.16, bins = bins)
+      pal <- colorBin("Greens", domain = all_us$totalpop.16, bins = bins)
       
       # Make the labels bold, assign the variable shown by  state.
       # Thanks to Rstudio for the help with this!
       
       labels <- sprintf(
         "<strong>%s</strong><br/>%g people",
-        all_us$geography, all_us$totalpop.16
+        all_us$geography, round(all_us$totalpop.16 / 1000000, 1)
       ) %>% lapply(htmltools::HTML)
       
       # Create the actual leaflet plot:
