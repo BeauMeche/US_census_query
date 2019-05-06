@@ -46,10 +46,10 @@ ui <- navbarPage("A Smoother Look at the US Census",
                                          "Census Totals 2017" = "totalpop.17",
                                          "Census Change '16-'17" = "change"))),
                   
-                  mainPanel(leafletOutput("big_map"))),
+                  mainPanel(htmlOutput("testing"), 
+                            leafletOutput("big_map"))),
           tabPanel("Young People",
-                   mainPanel(plotOutput("youth"),
-                             htmlOutput("testing"))),
+                   mainPanel(plotOutput("youth"))),
           
           tabPanel("Tabled Data",
                    mainPanel(DTOutput("table"))),
@@ -64,7 +64,7 @@ ui <- navbarPage("A Smoother Look at the US Census",
 
 server <- function(input, output) {
   
-   q <- reactive ({ input$vars })
+   # q <- reactive ({ input$vars })
   
   # This is the about tab code: I used html for the formatting abilities.
   # Include github link, contact link, acknowledgements, and data references.
@@ -124,7 +124,19 @@ server <- function(input, output) {
    })
   
   output$testing <- renderText({
-    "lets see where this goes"
+    if(input$vars == "totalpop.16"){
+      "<h3><b>Shown: All Adults in the 2016 Census<b/></h3>
+      Explore the map! Hover cursor over the map to view the data.<br/><br/>"
+    }
+    else if(input$vars == "totalpop.17"){
+      "<h3><b>Shown: All Adults in the 2017 Census<b/></h3>
+      Explore the map! Hover cursor over the map to view the data.<br/><br/>"
+    }
+    else{
+      "<h3><b>Shown: The Net Change in Adult Population by State<b/></h3>
+      Explore the map! Hover cursor over the map to view the data.<br/>
+      Is this what you would expect?<br/><br/>"
+    }
   })
    
   output$big_map <- renderLeaflet({ 
@@ -240,7 +252,7 @@ server <- function(input, output) {
             
             # Color of the hover-select outline
             
-            color = "#350",
+            color = "#600",
             dashArray = "",
             fillOpacity = 0.7,
             bringToFront = TRUE),
@@ -276,7 +288,7 @@ server <- function(input, output) {
       # Thanks to Rstudio for the help with this!
       
       labels <- sprintf(
-        "<strong>%s</strong><br/>%g people",
+        "<strong>%s</strong><br/>%g million people",
         all_us$geography, round(all_us$totalpop.16 / 1000000, 1)
       ) %>% lapply(htmltools::HTML)
       
@@ -332,8 +344,7 @@ server <- function(input, output) {
     }
    })
   
-
-   output$table <- renderDT({
+  output$table <- renderDT({
      
      # table of agg total pop attempt
      
