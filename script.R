@@ -77,7 +77,7 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
   # Write this specific df to a file so that it can be passed to the shiny app
   # later.
   
-  write_rds("young_people_locations")
+  write_rds("young_people_location")
 
 # this is the first plot in the app
 

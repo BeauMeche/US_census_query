@@ -7,14 +7,16 @@ library(dplyr)
 library(ggthemes)
 library(ggplot2)
 library(leaflet)
+library(DT)
 library(tidyverse)
+library(shinythemes)
 
 # look into DT Table
 
 # Read in the rds files that were written for this app in the script. In order,
 # they are for the bar plot, then the map then the table.
 
-youth_2017 <- read_rds("young_people_locations")
+youth_2017 <- read_rds("young_people_location")
 agg_total_pop_2 <- read_rds("aggregate_pops")
 states <- states()
 all_us <- geo_join(states, agg_total_pop_2, "NAME", "geography")
@@ -22,7 +24,7 @@ all_us <- geo_join(states, agg_total_pop_2, "NAME", "geography")
 # Define UI for application, this inccludes the tabs to be selected and what to
 # call them.
 
-ui <- fluidPage(
+ui <- fluidPage( theme = shinytheme("united"),
    
    # Application title
    titlePanel("A Smoother Look at the US Census"),
@@ -56,7 +58,7 @@ ui <- fluidPage(
                    plotOutput("youth")),
           
           tabPanel("Tabled Data",
-                   gt_output("table")),
+                   DTOutput("table")),
           tabPanel("About this Project",
                    htmlOutput("about"))
         )
@@ -106,7 +108,7 @@ server <- function(input, output) {
      
      # Shooting for a horizontal bar chart of states with the most 18-24 people.
      
-     ggplot(youth_2017) +
+    ggplot(youth_2017) +
    
        # Don't forget the stat argument... this can take a lot of time to
        # figure out otherwise.
@@ -114,15 +116,17 @@ server <- function(input, output) {
        geom_bar(stat = "identity", aes(x = geography, y = rat,
                                        fill = geography), show.legend = FALSE) +
       # Per Healey, invversion is cool.
-      # scale_y_continuous(labels=function(y) paste0(y,"%")) +
+      scale_y_continuous(labels=function(y) paste0(y,"%")) +
       coord_flip() +
+      theme_economist_white() +
       
       # Always label and cite, otherwise you have worked for nothing.
       
       labs(
         title = "Where are the young people?",
         subtitle = "States with the highest contingent of people age 18 to 24", 
-        caption = "Source: the U.S. Census")
+        caption = "Source: the U.S. Census",
+        x = "", y = "Percent of the States' Population")
    })
    
   output$big_map <- renderLeaflet({ 
@@ -195,29 +199,12 @@ server <- function(input, output) {
    })
   
 
-   output$table <- render_gt({
+   output$table <- renderDT({
      
      # table of agg total pop attempt
-     # Throwback to gt()
      
-     # Taking the same data from beofre, I want the reader to see their state
-     # aggregate and change on 'paper'. 
-
-     agg_total_pop_2 %>% gt() %>%
-       
-       # Re-name the cols to something nicer
-       
-       cols_label(geography = "State",
-                  totalpop.17 = "2017",
-                  totalpop.16 = "2016",
-                  change = "Change") %>%
-       
-       # Data is straight-forward, but labeling and citing is still a must.
-       
-       tab_header("Change in Total Population Counts") %>%
-       tab_spanner(label = "States and Territories in the first year of Trump's Presidency",
-                   columns = vars(geography, totalpop.17, totalpop.16, change)) %>%
-       tab_source_note("Source: the U.S. Census")
+     datatable(agg_total_pop_2,
+               colnames = c("State / Territory", "Pop_2017", "Pop_2016", "Change"))
    })
 }
 
