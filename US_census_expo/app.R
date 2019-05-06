@@ -34,22 +34,29 @@ ui <- fluidPage(
         # Allow for multiple tabs
         
         tabsetPanel(
+          sidebarLayout(
+            sidebarPanel(
+          # 
+          # # In each panel, name it something indicative of the info, but make it
+          # # sound interesting. In order: moving map, bar chart, gt table, and
+          # # the backround stuff.
+          # sidebarLayout(
+          #   sidebarPanel(                              
+          #   
           
-          # In each panel, name it something indicative of the info, but make it
-          # sound interesting. In order: moving map, bar chart, gt table, and
-          # the backround stuff.
           
           tabPanel("Population Flux",
-                   varSelectInput(vars, "Choose an Option Below:",
-                                  agg_total_pop_2, selected = "change",
-                                  multiple = FALSE),
+                  selectInput("vars",
+                              label = "Choose an Option Below:",
+                              choices = list("Census Totals 2016" = "totalpop.16",
+                                             "Census Totals 2017" = "totalpop.17",
+                                             "Census Change '16-'17" = "change"))
+                )
+              ),                  
+                  
                    leafletOutput("big_map")),
           tabPanel("Young People",
                    plotOutput("youth")),
-          
-          # tabPanel("Census Totals '17",
-          #          leafletOptions("pop_17")),
-          # This is commented pending further construction
           
           tabPanel("Tabled Data",
                    gt_output("table")),
@@ -57,12 +64,14 @@ ui <- fluidPage(
                    htmlOutput("about"))
         )
       )
-   )
+        )
 
 # Define server logic, watch the curl braces and  the quotes in the html.
 # Otherwise, it is the same code as in the script.
 
 server <- function(input, output) {
+  
+   y <- reactive ({ input$vars })
   
   # This is the about tab code: I used html for the formatting abilities.
   # Include github link, contact link, acknowledgements, and data references.
@@ -96,7 +105,7 @@ server <- function(input, output) {
     <a href="https://www.linkedin.com/in/beaumeche22/">Connect on LinkedIn</a>'
   })
    
-   output$youth <- renderPlot({
+  output$youth <- renderPlot({
      
      # Shooting for a horizontal bar chart of states with the most 18-24 people.
      
@@ -105,7 +114,7 @@ server <- function(input, output) {
        # Don't forget the stat argument... this can take a lot of time to
        # figure out otherwise.
        
-       geom_bar(stat = "identity", aes(x = geography, y = rat, 
+       geom_bar(stat = "identity", aes(x = geography, 
                                        fill = geography), show.legend = FALSE) +
        
        # Per Healey, invversion is cool.
@@ -121,23 +130,23 @@ server <- function(input, output) {
          caption = "Source: the U.S. Census")
    })
    
-   output$big_map <- renderLeaflet({
+  output$big_map <- renderLeaflet({ 
 
      # I edited this a bit to have a more even color scheme distribution, it
      # pertains to the legend's bracketing.
      
-     bins <- c(-45000, -25000, -15000, 0, 45000, 125000, 200000, Inf)
+     # bins <- c(-45000, -25000, -15000, 0, 45000, 125000, 200000, Inf)
      
      # Color palette, and domain by variable, bins arg goes here.
 
-     pal <- colorBin("RdYlGn", domain = all_us$change, bins = bins)
+     pal <- colorBin("RdYlGn", domain = all_us$y)
      
      # Make the labels bold, assign the variable shown by  state.
      # Thanks to Rstudio for the help with this!
 
      labels <- sprintf(
        "<strong>%s</strong><br/>%g people",
-       all_us$geography, all_us$vars
+       all_us$geography, all_us$y
      ) %>% lapply(htmltools::HTML)
      
      # Create the actual leaflet plot:
@@ -156,7 +165,7 @@ server <- function(input, output) {
        # you with the details.
        
        addPolygons(
-         fillColor = ~pal(vars),
+         fillColor = ~pal(y),
          weight = 2,
          opacity = 1,
          color = "white",
@@ -181,55 +190,15 @@ server <- function(input, output) {
          labelOptions = labelOptions(
            style = list("font-weight" = "normal", padding = "3px 8px"),
            textsize = "15px",
-           direction = "auto")) %>%
+           direction = "auto"))
        
        # The legend is mandatory here, otherwise the colors are pointless and the
        # map is less interesting.
        
-       addLegend(pal = pal, values = ~all_us$vars, opacity = 0.7, title = NULL,
-                 position = "bottomright")
+       # addLegend(pal = pal, values = ~input$vars, opacity = 0.7, title = NULL,
+       #           position = "bottomright")
    })
-   
-   # This is a script in progress, it will run in the environment but it won't
-   # project in shiny. It doesn't throw an error, but it doesn't map either.
-   # Shall consult with Kane / Albert later. Skipping the re-explanation for
-   # brevity, I trust the reader's ability to infer from above. 
-   
-   # output$pop_17 <- renderLeaflet({
-   # 
-   #   pal_1 <- colorBin("YlOrRd", domain = all_us$totalpop.17)
-   # 
-   #   labels <- sprintf(
-   #     "<strong>%s</strong><br/>%g people",
-   #     all_us$geography, all_us$totalpop.17
-   #   ) %>% lapply(htmltools::HTML)
-   # 
-   #   leaflet(all_us) %>%
-   #     setView(-96, 37.8, 3) %>%
-   #     addProviderTiles("MapBox", options = providerTileOptions(
-   #       id = "mapbox.light",
-   #       accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>%
-   #     addPolygons(
-   #       fillColor = ~pal(totalpop.17),
-   #       weight = 2,
-   #       opacity = 1,
-   #       color = "white",
-   #       dashArray = "3",
-   #       fillOpacity = 0.7,
-   #       highlight = highlightOptions(
-   #         weight = 5,
-   #         color = "#750",
-   #         dashArray = "",
-   #         fillOpacity = 0.7,
-   #         bringToFront = TRUE),
-   #       label = labels,
-   #       labelOptions = labelOptions(
-   #         style = list("font-weight" = "normal", padding = "3px 8px"),
-   #         textsize = "15px",
-   #         direction = "auto")) %>%
-   #     addLegend(pal = pal_1, values = ~all_us$totalpop.17, opacity = 0.7, title = NULL,
-   #               position = "bottomright")
-   # })
+  
 
    output$table <- render_gt({
      
