@@ -24,47 +24,39 @@ all_us <- geo_join(states, agg_total_pop_2, "NAME", "geography")
 # Define UI for application, this inccludes the tabs to be selected and what to
 # call them.
 
-ui <- fluidPage( theme = shinytheme("united"),
-   
-   # Application title
-   titlePanel("A Smoother Look at the US Census"),
+ui <- navbarPage("A Smoother Look at the US Census",
+                 theme = shinytheme("united"),
       
       # This is the main consumer-facing aspect of the app. Make it nice.
-   
-      mainPanel(
-        
-        # Allow for multiple tabs
-        
-        tabsetPanel(
-        #   sidebarLayout(
-        #     sidebarPanel(
+
+                      
+            tabPanel("Population Flux",
+                     
+            sidebarPanel(
           
           # # In each panel, name it something indicative of the info, but make it
           # # sound interesting. In order: moving map, bar chart, gt table, and
           # # the backround stuff.
           
           
-          tabPanel("Population Flux",
-                  # selectInput("vars",
-                  #             label = "Choose an Option Below:",
-                  #             choices = list("Census Totals 2016" = "totalpop.16",
-                  #                            "Census Totals 2017" = "totalpop.17",
-                  #                            "Census Change '16-'17" = "change"))
-                # )
-              # ),                  
+         
+              selectInput("vars",
+                          label = "Choose an Option Below:",
+                          choices = list("Census Totals 2016" = "totalpop.16",
+                                         "Census Totals 2017" = "totalpop.17",
+                                         "Census Change '16-'17" = "change"))),
                   
-                   leafletOutput("big_map")),
+                  mainPanel(leafletOutput("big_map"))),
           tabPanel("Young People",
-                   plotOutput("youth")),
+                   mainPanel(plotOutput("youth"),
+                             htmlOutput("testing"))),
           
           tabPanel("Tabled Data",
-                   DTOutput("table")),
+                   mainPanel(DTOutput("table"))),
           tabPanel("About this Project",
-                   htmlOutput("about"))
+                   mainPanel(htmlOutput("about")))
         )
-      )
-)  
-      
+    
       
 
 # Define server logic, watch the curl braces and  the quotes in the html.
@@ -130,8 +122,14 @@ server <- function(input, output) {
         caption = "Source: the U.S. Census",
         x = "", y = "Percent of the States' Population")
    })
+  
+  output$testing <- renderText({
+    "lets see where this goes"
+  })
    
   output$big_map <- renderLeaflet({ 
+    
+    if(input$vars == "change") {
 
      # I edited this a bit to have a more even color scheme distribution, it
      # pertains to the legend's bracketing.
@@ -140,7 +138,7 @@ server <- function(input, output) {
      
      # Color palette, and domain by variable, bins arg goes here.
 
-     pal <- colorBin("RdYlGn", domain = all_us$q, bins = bins)
+     pal <- colorBin("RdYlGn", domain = all_us$change, bins = bins)
      
      # Make the labels bold, assign the variable shown by  state.
      # Thanks to Rstudio for the help with this!
@@ -197,7 +195,141 @@ server <- function(input, output) {
        # map is less interesting.
 
        addLegend(pal = pal, values = ~all_us$change, opacity = 0.7, title = NULL,
-                 position = "bottomright")
+                 position = "bottomright")}
+    
+    else if (input$vars == "totalpop.17"){
+      
+      bins <- c(-45000, -25000, -15000, 0, 45000, 125000, 200000, Inf)
+      
+      # Color palette, and domain by variable, bins arg goes here.
+      
+      pal <- colorBin("RdYlGn", domain = all_us$totalpop.17, bins = bins)
+      
+      # Make the labels bold, assign the variable shown by  state.
+      # Thanks to Rstudio for the help with this!
+      
+      labels <- sprintf(
+        "<strong>%s</strong><br/>%g people",
+        all_us$geography, round(all_us$totalpop.17 / 1000000, 1)
+      ) %>% lapply(htmltools::HTML)
+      
+      # Create the actual leaflet plot:
+      
+      leaflet(all_us) %>%
+        
+        # Set the opening view range and zoom and add in the tiles. 
+        # This resource requires an "access token" evidently. 
+        
+        setView(-96, 37.8, 3) %>%
+        addProviderTiles("MapBox", options = providerTileOptions(
+          id = "mapbox.light",
+          accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>%
+        
+        # These are all asthetic edits, most are self-explanatory, so I won't bore
+        # you with the details.
+        
+        addPolygons(
+          fillColor = ~pal(totalpop.17),
+          weight = 2,
+          opacity = 1,
+          color = "white",
+          dashArray = "3",
+          fillOpacity = 0.7,
+          highlight = highlightOptions(
+            weight = 5,
+            
+            # Color of the hover-select outline
+            
+            color = "#350",
+            dashArray = "",
+            fillOpacity = 0.7,
+            bringToFront = TRUE),
+          
+          # Intake label assignment from above.
+          
+          label = labels,
+          
+          # Hover label asthetics. 
+          
+          labelOptions = labelOptions(
+            style = list("font-weight" = "normal", padding = "3px 8px"),
+            textsize = "15px",
+            direction = "auto")) %>% 
+        
+        # The legend is mandatory here, otherwise the colors are pointless and the
+        # map is less interesting.
+        
+        addLegend(pal = pal, values = ~all_us$totalpop.17, opacity = 0.7, title = NULL,
+                  position = "bottomright")
+      
+    }
+    
+    else{
+      
+      bins <- c(-45000, -25000, -15000, 0, 45000, 125000, 200000, Inf)
+      
+      # Color palette, and domain by variable, bins arg goes here.
+      
+      pal <- colorBin("RdYlGn", domain = all_us$totalpop.16, bins = bins)
+      
+      # Make the labels bold, assign the variable shown by  state.
+      # Thanks to Rstudio for the help with this!
+      
+      labels <- sprintf(
+        "<strong>%s</strong><br/>%g people",
+        all_us$geography, all_us$totalpop.16
+      ) %>% lapply(htmltools::HTML)
+      
+      # Create the actual leaflet plot:
+      
+      leaflet(all_us) %>%
+        
+        # Set the opening view range and zoom and add in the tiles. 
+        # This resource requires an "access token" evidently. 
+        
+        setView(-96, 37.8, 3) %>%
+        addProviderTiles("MapBox", options = providerTileOptions(
+          id = "mapbox.light",
+          accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>%
+        
+        # These are all asthetic edits, most are self-explanatory, so I won't bore
+        # you with the details.
+        
+        addPolygons(
+          fillColor = ~pal(totalpop.16),
+          weight = 2,
+          opacity = 1,
+          color = "white",
+          dashArray = "3",
+          fillOpacity = 0.7,
+          highlight = highlightOptions(
+            weight = 5,
+            
+            # Color of the hover-select outline
+            
+            color = "#350",
+            dashArray = "",
+            fillOpacity = 0.7,
+            bringToFront = TRUE),
+          
+          # Intake label assignment from above.
+          
+          label = labels,
+          
+          # Hover label asthetics. 
+          
+          labelOptions = labelOptions(
+            style = list("font-weight" = "normal", padding = "3px 8px"),
+            textsize = "15px",
+            direction = "auto")) %>% 
+        
+        # The legend is mandatory here, otherwise the colors are pointless and the
+        # map is less interesting.
+        
+        addLegend(pal = pal, values = ~all_us$totalpop.16, opacity = 0.7, title = NULL,
+                  position = "bottomright")
+      
+    }
    })
   
 
@@ -206,7 +338,8 @@ server <- function(input, output) {
      # table of agg total pop attempt
      
      datatable(agg_total_pop_2,
-               colnames = c("State / Territory", "Pop_2017", "Pop_2016", "Change"))
+               colnames = c("State / Territory", "Population 2017", "Population 2016", "Change '16-'17")) %>% 
+       formatCurrency(c("totalpop.17", "totalpop.16", "change"), currency = "", interval = 3, mark = ",", digits = 0)
    })
 }
 

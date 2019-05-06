@@ -263,7 +263,6 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
   
   
   # table of agg total pop attempt
-  # Throwback to gt()
   
   # Taking the same data from beofre, I want the reader to see their state
   # aggregate and change on 'paper'. 
