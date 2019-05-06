@@ -36,13 +36,10 @@ ui <- fluidPage(
         tabsetPanel(
           sidebarLayout(
             sidebarPanel(
-          # 
+          
           # # In each panel, name it something indicative of the info, but make it
           # # sound interesting. In order: moving map, bar chart, gt table, and
           # # the backround stuff.
-          # sidebarLayout(
-          #   sidebarPanel(                              
-          #   
           
           
           tabPanel("Population Flux",
@@ -71,7 +68,7 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   
-   y <- reactive ({ input$vars })
+   q <- reactive ({ input$vars })
   
   # This is the about tab code: I used html for the formatting abilities.
   # Include github link, contact link, acknowledgements, and data references.
@@ -114,20 +111,18 @@ server <- function(input, output) {
        # Don't forget the stat argument... this can take a lot of time to
        # figure out otherwise.
        
-       geom_bar(stat = "identity", aes(x = geography, 
+       geom_bar(stat = "identity", aes(x = geography, y = rat,
                                        fill = geography), show.legend = FALSE) +
-       
-       # Per Healey, invversion is cool.
-       scale_y_continuous(labels=function(y) paste0(y,"%")) +
-       theme_fivethirtyeight() + 
-       coord_flip() +
-       
-       # Always label and cite, otherwise you have worked for nothing.
-       
-       labs(
-         title = "Where are the young people?",
-         subtitle = "States with the highest contingent of people age 18 to 24", 
-         caption = "Source: the U.S. Census")
+      # Per Healey, invversion is cool.
+      # scale_y_continuous(labels=function(y) paste0(y,"%")) +
+      coord_flip() +
+      
+      # Always label and cite, otherwise you have worked for nothing.
+      
+      labs(
+        title = "Where are the young people?",
+        subtitle = "States with the highest contingent of people age 18 to 24", 
+        caption = "Source: the U.S. Census")
    })
    
   output$big_map <- renderLeaflet({ 
@@ -139,14 +134,14 @@ server <- function(input, output) {
      
      # Color palette, and domain by variable, bins arg goes here.
 
-     pal <- colorBin("RdYlGn", domain = all_us$y)
+     pal <- colorBin("RdYlGn", domain = all_us$q)
      
      # Make the labels bold, assign the variable shown by  state.
      # Thanks to Rstudio for the help with this!
 
      labels <- sprintf(
        "<strong>%s</strong><br/>%g people",
-       all_us$geography, all_us$y
+       all_us$geography, all_us$q
      ) %>% lapply(htmltools::HTML)
      
      # Create the actual leaflet plot:
@@ -165,7 +160,7 @@ server <- function(input, output) {
        # you with the details.
        
        addPolygons(
-         fillColor = ~pal(y),
+         fillColor = ~pal(q),
          weight = 2,
          opacity = 1,
          color = "white",
