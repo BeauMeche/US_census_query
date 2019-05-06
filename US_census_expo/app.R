@@ -46,7 +46,7 @@ ui <- navbarPage("A Smoother Look at the US Census",
                                          "Census Totals 2017" = "totalpop.17",
                                          "Census Change '16-'17" = "change"))),
                   
-                  mainPanel(htmlOutput("testing"), 
+                  mainPanel(htmlOutput("map_text"), 
                             leafletOutput("big_map"))),
           tabPanel("Young People",
                    mainPanel(plotOutput("youth"))),
@@ -123,7 +123,7 @@ server <- function(input, output) {
         x = "", y = "Percent of the States' Population")
    })
   
-  output$testing <- renderText({
+  output$map_text <- renderText({
     if(input$vars == "totalpop.16"){
       "<h3><b>Shown: All Adults in the 2016 Census<b/></h3>
       Explore the map! Hover cursor over the map to view the data.<br/><br/>"
