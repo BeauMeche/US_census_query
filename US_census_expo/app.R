@@ -36,8 +36,8 @@ ui <- fluidPage( theme = shinytheme("united"),
         # Allow for multiple tabs
         
         tabsetPanel(
-          sidebarLayout(
-            sidebarPanel(
+        #   sidebarLayout(
+        #     sidebarPanel(
           
           # # In each panel, name it something indicative of the info, but make it
           # # sound interesting. In order: moving map, bar chart, gt table, and
@@ -45,13 +45,13 @@ ui <- fluidPage( theme = shinytheme("united"),
           
           
           tabPanel("Population Flux",
-                  selectInput("vars",
-                              label = "Choose an Option Below:",
-                              choices = list("Census Totals 2016" = "totalpop.16",
-                                             "Census Totals 2017" = "totalpop.17",
-                                             "Census Change '16-'17" = "change"))
-                )
-              ),                  
+                  # selectInput("vars",
+                  #             label = "Choose an Option Below:",
+                  #             choices = list("Census Totals 2016" = "totalpop.16",
+                  #                            "Census Totals 2017" = "totalpop.17",
+                  #                            "Census Change '16-'17" = "change"))
+                # )
+              # ),                  
                   
                    leafletOutput("big_map")),
           tabPanel("Young People",
@@ -63,7 +63,9 @@ ui <- fluidPage( theme = shinytheme("united"),
                    htmlOutput("about"))
         )
       )
-        )
+)  
+      
+      
 
 # Define server logic, watch the curl braces and  the quotes in the html.
 # Otherwise, it is the same code as in the script.
@@ -134,18 +136,18 @@ server <- function(input, output) {
      # I edited this a bit to have a more even color scheme distribution, it
      # pertains to the legend's bracketing.
      
-     # bins <- c(-45000, -25000, -15000, 0, 45000, 125000, 200000, Inf)
+     bins <- c(-45000, -25000, -15000, 0, 45000, 125000, 200000, Inf)
      
      # Color palette, and domain by variable, bins arg goes here.
 
-     pal <- colorBin("RdYlGn", domain = all_us$q)
+     pal <- colorBin("RdYlGn", domain = all_us$q, bins = bins)
      
      # Make the labels bold, assign the variable shown by  state.
      # Thanks to Rstudio for the help with this!
 
      labels <- sprintf(
        "<strong>%s</strong><br/>%g people",
-       all_us$geography, all_us$q
+       all_us$geography, all_us$change
      ) %>% lapply(htmltools::HTML)
      
      # Create the actual leaflet plot:
@@ -164,7 +166,7 @@ server <- function(input, output) {
        # you with the details.
        
        addPolygons(
-         fillColor = ~pal(q),
+         fillColor = ~pal(change),
          weight = 2,
          opacity = 1,
          color = "white",
@@ -175,7 +177,7 @@ server <- function(input, output) {
            
            # Color of the hover-select outline
            
-           color = "#750",
+           color = "#350",
            dashArray = "",
            fillOpacity = 0.7,
            bringToFront = TRUE),
@@ -189,13 +191,13 @@ server <- function(input, output) {
          labelOptions = labelOptions(
            style = list("font-weight" = "normal", padding = "3px 8px"),
            textsize = "15px",
-           direction = "auto"))
+           direction = "auto")) %>% 
        
        # The legend is mandatory here, otherwise the colors are pointless and the
        # map is less interesting.
-       
-       # addLegend(pal = pal, values = ~input$vars, opacity = 0.7, title = NULL,
-       #           position = "bottomright")
+
+       addLegend(pal = pal, values = ~all_us$change, opacity = 0.7, title = NULL,
+                 position = "bottomright")
    })
   
 
