@@ -18,8 +18,9 @@ library(shinythemes)
 
 youth_2017 <- read_rds("young_people_location")
 agg_total_pop_2 <- read_rds("aggregate_pops")
+frame_with_degrees <- read_rds("aggregate_plus_degrees")
 states <- states()
-all_us <- geo_join(states, agg_total_pop_2, "NAME", "geography")
+all_us <- geo_join(states, frame_with_degrees, "NAME", "geography")
 
 # Define UI for application, this inccludes the tabs to be selected and what to
 # call them.
@@ -44,7 +45,10 @@ ui <- navbarPage("A Smoother Look at the US Census",
                           label = "Choose an Option Below:",
                           choices = list("Census Totals 2016" = "totalpop.16",
                                          "Census Totals 2017" = "totalpop.17",
-                                         "Census Change '16-'17" = "change"))),
+                                         "Census Change '16-'17" = "change",
+                                         "Degrees Held 2017" = "total_degrees.17",
+                                         "Degrees Held 2016" = "total_degrees.16",
+                                         "Change in Degree-holder Location" = "deg_change"))),
                   
                   mainPanel(htmlOutput("map_text"), 
                             leafletOutput("big_map"))),
@@ -276,7 +280,7 @@ server <- function(input, output) {
       
     }
     
-    else{
+    else if (input$vars == "totalpop.16") {
       
       bins <- c( 0, 500000, 1000000, 3000000, 5000000, 10000000, 20000000, Inf)
       
@@ -341,6 +345,204 @@ server <- function(input, output) {
         addLegend(pal = pal, values = ~all_us$totalpop.16, opacity = 0.7, title = NULL,
                   position = "bottomright")
       
+    }
+    
+    else if (input$vars == "total_degrees.16") {
+      
+      # bins <- c( 0, 500000, 1000000, 3000000, 5000000, 10000000, 20000000, Inf)
+      
+      # Color palette, and domain by variable, bins arg goes here.
+      
+      pal <- colorBin("Reds", domain = all_us$total_degrees.16)
+      
+      # Make the labels bold, assign the variable shown by  state.
+      # Thanks to Rstudio for the help with this!
+      
+      labels <- sprintf(
+        "<strong>%s</strong><br/>%g million people",
+        all_us$geography, round(all_us$total_degrees.16 / 1000000, 1)
+      ) %>% lapply(htmltools::HTML)
+      
+      # Create the actual leaflet plot:
+      
+      leaflet(all_us) %>%
+        
+        # Set the opening view range and zoom and add in the tiles. 
+        # This resource requires an "access token" evidently. 
+        
+        setView(-96, 37.8, 3) %>%
+        addProviderTiles("MapBox", options = providerTileOptions(
+          id = "mapbox.light",
+          accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>%
+        
+        # These are all asthetic edits, most are self-explanatory, so I won't bore
+        # you with the details.
+        
+        addPolygons(
+          fillColor = ~pal(total_degrees.16),
+          weight = 2,
+          opacity = 1,
+          color = "white",
+          dashArray = "3",
+          fillOpacity = 0.7,
+          highlight = highlightOptions(
+            weight = 5,
+            
+            # Color of the hover-select outline
+            
+            color = "#500",
+            dashArray = "",
+            fillOpacity = 0.7,
+            bringToFront = TRUE),
+          
+          # Intake label assignment from above.
+          
+          label = labels,
+          
+          # Hover label asthetics. 
+          
+          labelOptions = labelOptions(
+            style = list("font-weight" = "normal", padding = "3px 8px"),
+            textsize = "15px",
+            direction = "auto")) %>% 
+        
+        # The legend is mandatory here, otherwise the colors are pointless and the
+        # map is less interesting.
+        
+        addLegend(pal = pal, values = ~all_us$total_degrees.16, opacity = 0.7, title = NULL,
+                  position = "bottomright")
+    }
+    
+    else if(input$vars == "total_degrees.17") {
+      
+      # bins <- c( 0, 500000, 1000000, 3000000, 5000000, 10000000, 20000000, Inf)
+      
+      # Color palette, and domain by variable, bins arg goes here.
+      
+      pal <- colorBin("Reds", domain = all_us$total_degrees.17)
+      
+      # Make the labels bold, assign the variable shown by  state.
+      # Thanks to Rstudio for the help with this!
+      
+      labels <- sprintf(
+        "<strong>%s</strong><br/>%g million people",
+        all_us$geography, round(all_us$total_degrees.17 / 1000000, 1)
+      ) %>% lapply(htmltools::HTML)
+      
+      # Create the actual leaflet plot:
+      
+      leaflet(all_us) %>%
+        
+        # Set the opening view range and zoom and add in the tiles. 
+        # This resource requires an "access token" evidently. 
+        
+        setView(-96, 37.8, 3) %>%
+        addProviderTiles("MapBox", options = providerTileOptions(
+          id = "mapbox.light",
+          accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>%
+        
+        # These are all asthetic edits, most are self-explanatory, so I won't bore
+        # you with the details.
+        
+        addPolygons(
+          fillColor = ~pal(total_degrees.17),
+          weight = 2,
+          opacity = 1,
+          color = "white",
+          dashArray = "3",
+          fillOpacity = 0.7,
+          highlight = highlightOptions(
+            weight = 5,
+            
+            # Color of the hover-select outline
+            
+            color = "#500",
+            dashArray = "",
+            fillOpacity = 0.7,
+            bringToFront = TRUE),
+          
+          # Intake label assignment from above.
+          
+          label = labels,
+          
+          # Hover label asthetics. 
+          
+          labelOptions = labelOptions(
+            style = list("font-weight" = "normal", padding = "3px 8px"),
+            textsize = "15px",
+            direction = "auto")) %>% 
+        
+        # The legend is mandatory here, otherwise the colors are pointless and the
+        # map is less interesting.
+        
+        addLegend(pal = pal, values = ~all_us$total_degrees.17, opacity = 0.7, title = NULL,
+                  position = "bottomright")
+    }
+    
+    else {
+      
+      # bins <- c( 0, 500000, 1000000, 3000000, 5000000, 10000000, 20000000, Inf)
+      
+      # Color palette, and domain by variable, bins arg goes here.
+      
+      pal <- colorBin("Reds", domain = all_us$deg_change)
+      
+      # Make the labels bold, assign the variable shown by  state.
+      # Thanks to Rstudio for the help with this!
+      
+      labels <- sprintf(
+        "<strong>%s</strong><br/>%g million people",
+        all_us$geography, all_us$deg_change
+      ) %>% lapply(htmltools::HTML)
+      
+      # Create the actual leaflet plot:
+      
+      leaflet(all_us) %>%
+        
+        # Set the opening view range and zoom and add in the tiles. 
+        # This resource requires an "access token" evidently. 
+        
+        setView(-96, 37.8, 3) %>%
+        addProviderTiles("MapBox", options = providerTileOptions(
+          id = "mapbox.light",
+          accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>%
+        
+        # These are all asthetic edits, most are self-explanatory, so I won't bore
+        # you with the details.
+        
+        addPolygons(
+          fillColor = ~pal(deg_change),
+          weight = 2,
+          opacity = 1,
+          color = "white",
+          dashArray = "3",
+          fillOpacity = 0.7,
+          highlight = highlightOptions(
+            weight = 5,
+            
+            # Color of the hover-select outline
+            
+            color = "#500",
+            dashArray = "",
+            fillOpacity = 0.7,
+            bringToFront = TRUE),
+          
+          # Intake label assignment from above.
+          
+          label = labels,
+          
+          # Hover label asthetics. 
+          
+          labelOptions = labelOptions(
+            style = list("font-weight" = "normal", padding = "3px 8px"),
+            textsize = "15px",
+            direction = "auto")) %>% 
+        
+        # The legend is mandatory here, otherwise the colors are pointless and the
+        # map is less interesting.
+        
+        addLegend(pal = pal, values = ~all_us$deg_change, opacity = 0.7, title = NULL,
+                  position = "bottomright")
     }
    })
   
