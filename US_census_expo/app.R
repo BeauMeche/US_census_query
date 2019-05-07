@@ -11,8 +11,6 @@ library(DT)
 library(tidyverse)
 library(shinythemes)
 
-# look into DT Table
-
 # Read in the rds files that were written for this app in the script. In order,
 # they are for the bar plot, then the map then the table.
 
@@ -31,7 +29,6 @@ ui <- navbarPage("A Smoother Look at the US Census",
       
       # This is the main consumer-facing aspect of the app. Make it nice.
 
-                      
             tabPanel("Population Flux",
                      
             sidebarPanel(
@@ -54,6 +51,10 @@ ui <- navbarPage("A Smoother Look at the US Census",
                             leafletOutput("big_map"))),
       
           tabPanel("Static Contrast",
+                   
+                   # tabset inside of a tab allows tabs inside of a tab...
+                   # tab-ception
+                   
                    tabsetPanel(
                      tabPanel("Where are the Young People?",
                               plotOutput("youth")),
@@ -74,14 +75,13 @@ ui <- navbarPage("A Smoother Look at the US Census",
 
 server <- function(input, output) {
   
-   # q <- reactive ({ input$vars })
-  
   # This is the about tab code: I used html for the formatting abilities.
-  # Include github link, contact link, acknowledgements, and data references.
   
   output$about <- renderText({
     
     # Can't comment between lines here bc of the quotes, but html is very picky.
+    # Including a link to my github ad linkedin, and also my ackowledgement
+    # section. 
     
     '<h3><b>About this Project</b></h3>
     <br/>
@@ -107,6 +107,8 @@ server <- function(input, output) {
     Contact: beau_meche@college.harvard.edu<br/>
     <a href="https://www.linkedin.com/in/beaumeche22/">Connect on LinkedIn</a>'
   })
+  
+  # This is the static bar chart about percentage of people 18-24
    
   output$youth <- renderPlot({
      
@@ -119,9 +121,15 @@ server <- function(input, output) {
        
        geom_bar(stat = "identity", aes(x = geography, y = rat,
                                        fill = geography), show.legend = FALSE) +
-      # Per Healey, invversion is cool.
+      
+      # Per Healey, invversion is cool. I had to use paste because the
+      # continuous scale was picky about my lack of "continuous data"
+      
       scale_y_continuous(labels=function(y) paste0(y,"%")) +
       coord_flip() +
+      
+      # Themes are nice-looking. 
+      
       theme_economist_white() +
       
       # Always label and cite, otherwise you have worked for nothing.
@@ -130,12 +138,23 @@ server <- function(input, output) {
         title = "Where are the young people?",
         subtitle = "States with the highest contingent of people age 18 to 24", 
         caption = "Source: the U.S. Census Bureau",
+        
+        # x-axis is labeled intrinsically
+        
         x = "", y = "Percent of the States' Population")
    })
   
+  # This is the static bar plot about percentage of degree holders by state
+  
   output$degree_states <- renderPlot({
     
+    # Pass the data to ggplot to avoid pipe actions in the app
+    
     ggplot(percent_educ) +
+      
+      # Don't forget about 'stat =' 
+      # see the previous bar plot for the geom_bar() formatting comments.
+      
       geom_bar(stat = "identity", aes(x = geography, y = percent_deg_17,
                                       fill = geography), show.legend = FALSE)+
       scale_y_continuous(labels=function(y) paste0(y,"%")) +
@@ -150,31 +169,45 @@ server <- function(input, output) {
   })
   
   output$map_text <- renderText({
+    
+    # Because the map is reactive, each selection is relevant to different data
+    # and information. Thus, I had to create reactive labels. The HTML code
+    # below is run through an if-else loop system so that it coordinates with
+    # the display. I don't have to worry about an initial selection because the
+    # 'selectInput' tool does this implicitly.
+    
     if(input$vars == "totalpop.16"){
       "<h3><b>All Adults in the 2016 Census<b/></h3>
-      Explore the map! Hover cursor over the map to view the data.<br/><br/>"
+      Explore the map! Hover cursor over the map to view the data.<br/>
+      Each numeric representation relates to one response to the census.<br/><br/>"
     }
     else if(input$vars == "totalpop.17"){
       "<h3><b>All Adults in the 2017 Census<b/></h3>
-      Explore the map! Hover cursor over the map to view the data.<br/><br/>"
+      Explore the map! Hover cursor over the map to view the data.<br/>
+      Each numeric representation relates to one response to the census.<br/><br/>"
     }
     else if(input$vars == "change"){
       "<h3><b>The Net Change in Adult Population by State<b/></h3>
       Explore the map! Hover cursor over the map to view the data.<br/>
-      Is this what you would expect?<br/><br/>"
+      Is this what you would expect?<br/>
+      Each numeric representation relates to one response to the census.<br/><br/>"
     }
     else if(input$vars == "total_degrees.17"){
       "<h3><b>Adults with a Bachelor's Degree in 2017<b/></h3>
-      Explore the map! Hover cursor over the map to view the data.<br/><br/>"
+      Explore the map! Hover cursor over the map to view the data.<br/>
+      Each numeric representation relates to one response to the census.<br/><br/>"
     }
     else if(input$vars == "total_degrees.16"){
       "<h3><b>Adults with a Bachelor's Degree in 2016<b/></h3>
-      Explore the map! Hover cursor over the map to view the data.<br/><br/>"
+      Explore the map! Hover cursor over the map to view the data.<br/>
+      Each numeric representation relates to one response to the census.<br/><br/>"
     }
     else{
       "<h3><b>The Net Change in Degree-Holding Adult Population by State<b/></h3>
+      This data shows the flux of individuals with degrees throughout the U.S.<br/>
       Explore the map! Hover cursor over the map to view the data.<br/>
-      Is this what you would expect?<br/><br/>"
+      Is this what you would expect?<br/>
+      Each numeric representation relates to one response to the census.<br/><br/>"
     }
   })
    
