@@ -52,11 +52,13 @@ ui <- navbarPage("A Smoother Look at the US Census",
                   
                   mainPanel(htmlOutput("map_text"), 
                             leafletOutput("big_map"))),
+      
           tabPanel("Young People",
                    mainPanel(plotOutput("youth"))),
           
           tabPanel("Tabled Data",
                    mainPanel(DTOutput("table"))),
+      
           tabPanel("About this Project",
                    mainPanel(htmlOutput("about")))
         )
@@ -129,15 +131,28 @@ server <- function(input, output) {
   
   output$map_text <- renderText({
     if(input$vars == "totalpop.16"){
-      "<h3><b>Shown: All Adults in the 2016 Census<b/></h3>
+      "<h3><b>All Adults in the 2016 Census<b/></h3>
       Explore the map! Hover cursor over the map to view the data.<br/><br/>"
     }
     else if(input$vars == "totalpop.17"){
-      "<h3><b>Shown: All Adults in the 2017 Census<b/></h3>
+      "<h3><b>All Adults in the 2017 Census<b/></h3>
+      Explore the map! Hover cursor over the map to view the data.<br/><br/>"
+    }
+    else if(input$vars == "change"){
+      "<h3><b>The Net Change in Adult Population by State<b/></h3>
+      Explore the map! Hover cursor over the map to view the data.<br/>
+      Is this what you would expect?<br/><br/>"
+    }
+    else if(input$vars == "total_degrees.17"){
+      "<h3><b>Adults with a Bachelor's Degree in 2017<b/></h3>
+      Explore the map! Hover cursor over the map to view the data.<br/><br/>"
+    }
+    else if(input$vars == "total_degrees.16"){
+      "<h3><b>Adults with a Bachelor's Degree in 2016<b/></h3>
       Explore the map! Hover cursor over the map to view the data.<br/><br/>"
     }
     else{
-      "<h3><b>Shown: The Net Change in Adult Population by State<b/></h3>
+      "<h3><b>The Net Change in Degree-Holding Adult Population by State<b/></h3>
       Explore the map! Hover cursor over the map to view the data.<br/>
       Is this what you would expect?<br/><br/>"
     }
@@ -150,7 +165,7 @@ server <- function(input, output) {
      # I edited this a bit to have a more even color scheme distribution, it
      # pertains to the legend's bracketing.
      
-     bins <- c(-45000, -25000, -15000, 0, 45000, 125000, 200000, Inf)
+     bins <- c(-Inf, -15000, 0, 45000, 125000, 200000, Inf)
      
      # Color palette, and domain by variable, bins arg goes here.
 
@@ -215,7 +230,7 @@ server <- function(input, output) {
     
     else if (input$vars == "totalpop.17"){
       
-      bins <- c( 0, 500000, 1000000, 3000000, 5000000, 10000000, 20000000, Inf)
+      bins <- c( 0, 500000, 1000000, 5000000, 10000000, 20000000, Inf)
       
       # Color palette, and domain by variable, bins arg goes here.
       
@@ -349,18 +364,18 @@ server <- function(input, output) {
     
     else if (input$vars == "total_degrees.16") {
       
-      # bins <- c( 0, 500000, 1000000, 3000000, 5000000, 10000000, 20000000, Inf)
+      bins <- c( 0, 50000, 100000, 500000, 1000000, 1500000, 2500000, 3500000, Inf)
       
       # Color palette, and domain by variable, bins arg goes here.
       
-      pal <- colorBin("Reds", domain = all_us$total_degrees.16)
+      pal <- colorBin("GnBu", domain = all_us$total_degrees.16, bins = bins)
       
       # Make the labels bold, assign the variable shown by  state.
       # Thanks to Rstudio for the help with this!
       
       labels <- sprintf(
         "<strong>%s</strong><br/>%g million people",
-        all_us$geography, round(all_us$total_degrees.16 / 1000000, 1)
+        all_us$geography, round(all_us$total_degrees.16 / 1000000, 2)
       ) %>% lapply(htmltools::HTML)
       
       # Create the actual leaflet plot:
@@ -382,7 +397,7 @@ server <- function(input, output) {
           fillColor = ~pal(total_degrees.16),
           weight = 2,
           opacity = 1,
-          color = "white",
+          color = "grey",
           dashArray = "3",
           fillOpacity = 0.7,
           highlight = highlightOptions(
@@ -390,7 +405,7 @@ server <- function(input, output) {
             
             # Color of the hover-select outline
             
-            color = "#500",
+            color = "#550",
             dashArray = "",
             fillOpacity = 0.7,
             bringToFront = TRUE),
@@ -415,18 +430,18 @@ server <- function(input, output) {
     
     else if(input$vars == "total_degrees.17") {
       
-      # bins <- c( 0, 500000, 1000000, 3000000, 5000000, 10000000, 20000000, Inf)
+      bins <- c( 0, 50000, 100000, 500000, 1000000, 1500000, 2500000, Inf)
       
       # Color palette, and domain by variable, bins arg goes here.
       
-      pal <- colorBin("Reds", domain = all_us$total_degrees.17)
+      pal <- colorBin("Reds", domain = all_us$total_degrees.17, bins = bins)
       
       # Make the labels bold, assign the variable shown by  state.
       # Thanks to Rstudio for the help with this!
       
       labels <- sprintf(
         "<strong>%s</strong><br/>%g million people",
-        all_us$geography, round(all_us$total_degrees.17 / 1000000, 1)
+        all_us$geography, round(all_us$total_degrees.17/1000000, 2)
       ) %>% lapply(htmltools::HTML)
       
       # Create the actual leaflet plot:
@@ -481,17 +496,17 @@ server <- function(input, output) {
     
     else {
       
-      # bins <- c( 0, 500000, 1000000, 3000000, 5000000, 10000000, 20000000, Inf)
+      bins <- c(-Inf, 0, 5000, 10000, 50000, 100000, 150000, 200000, Inf)
       
       # Color palette, and domain by variable, bins arg goes here.
       
-      pal <- colorBin("Reds", domain = all_us$deg_change)
+      pal <- colorBin("RdYlGn", domain = all_us$deg_change, bins = bins)
       
       # Make the labels bold, assign the variable shown by  state.
       # Thanks to Rstudio for the help with this!
       
       labels <- sprintf(
-        "<strong>%s</strong><br/>%g million people",
+        "<strong>%s</strong><br/>%g people",
         all_us$geography, all_us$deg_change
       ) %>% lapply(htmltools::HTML)
       
@@ -550,9 +565,11 @@ server <- function(input, output) {
      
      # table of agg total pop attempt
      
-     datatable(agg_total_pop_2,
-               colnames = c("State / Territory", "Population 2017", "Population 2016", "Change '16-'17")) %>% 
-       formatCurrency(c("totalpop.17", "totalpop.16", "change"), currency = "", interval = 3, mark = ",", digits = 0)
+     datatable(frame_with_degrees,
+               colnames = c("State / Territory", "Population 2017", "Population 2016", "Change '16-'17",
+                            "Degree Holders 2017", "Degree Holders 2016", "Degree Change '16-'17")) %>% 
+       formatCurrency(c("totalpop.17", "totalpop.16", "change", "total_degrees.17", "total_degrees.16", "deg_change"), 
+                      currency = "", interval = 3, mark = ",", digits = 0)
    })
 }
 
