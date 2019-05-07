@@ -5,8 +5,8 @@ account: beaumeche
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 900354
-bundleId: 2062812
+bundleId: 2067456
 url: https://beaumeche.shinyapps.io/US_census_expo_2/
-when: 1557114511.39477
+when: 1557257222.73108
 asMultiple: FALSE
 asStatic: FALSE
