@@ -13,6 +13,7 @@ library(ggplot2)
 library(tigris)
 library(tidyverse)
 library(scales)
+
 # I have previously acquired the sourcce files and they are in my personal
 # GitHub, so linking them here is safe. Also census data doesn't change.
 
@@ -77,6 +78,20 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
   # later.
   
   write_rds("young_people_location")
+
+percent_edu <- total_plus_degs %>% 
+  mutate(percent_deg_17 = (total_degrees.17/totalpop.17)*100) %>% 
+  select(geography, percent_deg_17) %>% 
+  arrange(desc(percent_deg_17)) %>% head(10) %>% 
+  write_rds("percent_educated")
+
+ggplot(percent_edu) +
+  geom_bar(stat = "identity", aes(x = geography, y = percent_deg_17,
+                                  fill = geography), show.legend = FALSE)+
+  scale_y_continuous(labels=function(y) paste0(y,"%")) +
+  coord_flip() +
+  theme_economist_white() 
+
 
 # extract the populations in each age group with bachelors or higher degrees and
 # add them up to see the "educated" people in 2017

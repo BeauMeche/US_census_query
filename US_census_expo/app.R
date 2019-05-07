@@ -17,6 +17,7 @@ library(shinythemes)
 # they are for the bar plot, then the map then the table.
 
 youth_2017 <- read_rds("young_people_location")
+percent_educ <- read_rds("percent_educated")
 agg_total_pop_2 <- read_rds("aggregate_pops")
 frame_with_degrees <- read_rds("aggregate_plus_degrees")
 states <- states()
@@ -40,21 +41,24 @@ ui <- navbarPage("A Smoother Look at the US Census",
           # # the backround stuff.
           
           
-         
               selectInput("vars",
                           label = "Choose an Option Below:",
-                          choices = list("Census Totals 2016" = "totalpop.16",
+                          choices = list("Census Change '16-'17" = "change",
+                                         "Census Totals 2016" = "totalpop.16",
                                          "Census Totals 2017" = "totalpop.17",
-                                         "Census Change '16-'17" = "change",
-                                         "Degrees Held 2017" = "total_degrees.17",
-                                         "Degrees Held 2016" = "total_degrees.16",
-                                         "Change in Degree-holder Location" = "deg_change"))),
+                                         "Degrees Held in 2017" = "total_degrees.17",
+                                         "Degrees Held in 2016" = "total_degrees.16",
+                                         "Change in Degree-Holder Location" = "deg_change"))),
                   
                   mainPanel(htmlOutput("map_text"), 
                             leafletOutput("big_map"))),
       
-          tabPanel("Young People",
-                   mainPanel(plotOutput("youth"))),
+          tabPanel("Static Contrast",
+                   tabsetPanel(
+                     tabPanel("Where are the Young People?",
+                              plotOutput("youth")),
+                     tabPanel("Where are the Educated People?",
+                              plotOutput("degree_states")))),
           
           tabPanel("Tabled Data",
                    mainPanel(DTOutput("table"))),
@@ -125,9 +129,25 @@ server <- function(input, output) {
       labs(
         title = "Where are the young people?",
         subtitle = "States with the highest contingent of people age 18 to 24", 
-        caption = "Source: the U.S. Census",
+        caption = "Source: the U.S. Census Bureau",
         x = "", y = "Percent of the States' Population")
    })
+  
+  output$degree_states <- renderPlot({
+    
+    ggplot(percent_educ) +
+      geom_bar(stat = "identity", aes(x = geography, y = percent_deg_17,
+                                      fill = geography), show.legend = FALSE)+
+      scale_y_continuous(labels=function(y) paste0(y,"%")) +
+      coord_flip() +
+      theme_economist_white() +
+      labs(
+        x = "", y = "Percent of Population with a Bachelor's Degree or Higher",
+        title = "States with the Highest Contingent of People with Degrees",
+        caption = "Source: US Census Bureau"
+      )
+    
+  })
   
   output$map_text <- renderText({
     if(input$vars == "totalpop.16"){
