@@ -50,7 +50,7 @@ ui <- navbarPage("A Smoother Look at the US Census",
                   mainPanel(htmlOutput("map_text"), 
                             leafletOutput("big_map"))),
       
-          tabPanel("Static Contrast",
+          tabPanel("Static Comparison",
                    
                    # tabset inside of a tab allows tabs inside of a tab...
                    # tab-ception
@@ -65,7 +65,11 @@ ui <- navbarPage("A Smoother Look at the US Census",
                    mainPanel(DTOutput("table"))),
       
           tabPanel("About this Project",
-                   mainPanel(htmlOutput("about")))
+                   tabsetPanel(
+                   tabPanel("More Info",
+                            htmlOutput("about")),
+                   tabPanel("Acknowledgements",
+                            htmlOutput("acknowledgements"))))
         )
     
       
@@ -83,29 +87,66 @@ server <- function(input, output) {
     # Including a link to my github ad linkedin, and also my ackowledgement
     # section. 
     
-    '<h3><b>About this Project</b></h3>
-    <br/>
-    <h5><b>Population Flux:</b></h5>
-    This map shows, per state, the net population flow (flux) in the time span between 2016-2017.<br/><br/>
-    <h5><b>Young People:</b></h5>
-    Where are the young people? Are they in places with positive or negative net change? Any ideas regarding why?<br/><br/>
-    <h5><b>Tabled Data:</b></h5>
-    Here is the data table behind some of these graphics. Take a look!<br/><br/>
-    <h5><b>Data</b></h5>
-    The data for this project comes from the U.S. Census Bureau via FactFinder. The data sets employed 
-    here can be found under educational attainment.<br/> Other data courtesy of the "tigris" package. 
-    <br/><br/>
-    <a href="https://factfinder.census.gov/faces/nav/jsf/pages/guided_search.xhtml">Check out FactFinder here.</a>
-    <br/><br/>
-    <a href="https://github.com/BeauMeche/US_census_query">See the Github repository for this project</a>
-    <br/><br/>
-    <h5><b>Acknoweldgements:</b></h5>
-    Thanks to Preceptor, Albert, Claire, Dillon, Charles, Debora, Celine, and Stephanie for feedback, 
-    advice, and input throughout the creation of this project.<br/>
-    I would also like to thank Rstudio and Rstudio Community for providing so many exceptional resources.<br/><br/>
-    Author: Beau Meche<br/>
-    Contact: beau_meche@college.harvard.edu<br/>
-    <a href="https://www.linkedin.com/in/beaumeche22/">Connect on LinkedIn</a>'
+    '<h2><b>Context, Explanation, and Citation</b></h2>
+      <br/>
+      <h4><b>Population Flux:</b></h4>
+        <ul>
+          <li>These maps show, per state or territory, the net population flow (flux) of that region in the time span between 2016-2017.
+              My reason for this was based in my interest in being able to visualize the gross population flow versus that of educated
+              individuals to see if there were noticeable trends. The term "brain drain" is popular in this context. The color schemes 
+              are aimmed at highlighting various aspects depending of the data selected, but I have included keys in case of confusion.</li>
+          <li>All numeric values are a sum of single responnses in which one resopnse relates to one adult respondent.</li>
+        </ul>
+    
+    <h4><b>Static Comparison - Where are the Young People?:</b></h4>
+      <ul>
+        <li>This is intended to show, as evidenced by the axes, the areas with the highest concentrations of individuals 
+            betwen 18 and 24. It is my hypothesis that younger individuals are generally more frequently and easily mobile, 
+            so this chart is intended to facilitate a comparison between where younger adults are congragated and states with
+            a high flux value.</li>
+        <li>All numeric values are a sum of single responnses in which one resopnse relates to one adult respondent.</li>
+      </ul>
+
+    <h4><b>Static Comparison - Where are the Educated People?:</b></h4>
+      <ul>
+        <li>This is intended to show, as evidenced by the axes, the regions with the highest concentrations of individuals 
+            in the U.S. with degrees. It is my hypothesis that individuals with a college degree are more mobile than those without one, 
+            so this chart is intended to further facilitate a comparison between where younger adults are congragated, where
+            those with a college degree are ccongreagetd, and states with a high popuation and/or flux value.</li>
+        <li>All numeric values are a sum of single responnses in which one resopnse relates to one adult respondent.</li>
+     </ul>
+
+    <h4><b>Tabled Data:</b></h4>
+      <ul>
+        <li>This is an interactive version of the data that I used in the various maps and charts. If you are interested in a certain state,
+            want to see the numbers in closer proximity, or generally enjoy spreadsheets, this is your spot.</li>
+        <li>For purposes of clarification, the final column is the net change in degree holder population.<br/>This was too cumbersome a title
+            for a single table column.</li>
+        <li>All numeric values are a sum of single responnses in which one resopnse relates to one adult respondent.</li>
+      </ul>
+
+
+    <h4><b>Data Sources:</b></h4>
+      <ul>
+        <li>The data for this project comes from the U.S. Census Bureau via FactFinder. The data sets employed 
+            here can be found under educational attainment.<br/> Geographic data courtesy of the "tigris" and "leaflet" packages.</li>
+        <li><a href="https://factfinder.census.gov/faces/nav/jsf/pages/guided_search.xhtml">Check out FactFinder here.</a></li>
+        <li><a href="https://github.com/BeauMeche/US_census_query">Check out the Github repository for this project here.</a></li>
+      </ul>'
+  })
+  
+  output$acknowledgements <- renderText({
+    
+    '<h4><b>Acknoweldgements:</b></h4>
+        <ul>
+          <li>Thanks to Dr. David Kane, Albert Rivero, Claire Fridkin, Dillon Smith, Charles Flood, Debora Gonzalez, Celine Vendler, 
+              <br/>Christopher Onesti, and Stephanie Yao for feedback, advice, and input throughout the creation of this project.</li>
+          <li>I would also like to thank Rstudio and Rstudio Community for providing so many exceptional resources.</li>
+        </ul><br/><br/><br/><br/><br/>
+      Author: Beau Meche<br/>
+      Contact: beau_meche@college.harvard.edu<br/>
+      <a href="https://www.linkedin.com/in/beaumeche22/">Connect on LinkedIn</a>'
+    
   })
   
   # This is the static bar chart about percentage of people 18-24
@@ -161,8 +202,9 @@ server <- function(input, output) {
       coord_flip() +
       theme_economist_white() +
       labs(
-        x = "", y = "Percent of Population with a Bachelor's Degree or Higher",
+        x = "", y = "Percent of State Population",
         title = "States with the Highest Contingent of People with Degrees",
+        subtitle = "Measuring individuals with a Bachelor's degree or more.",
         caption = "Source: US Census Bureau"
       )
     
@@ -178,36 +220,49 @@ server <- function(input, output) {
     
     if(input$vars == "totalpop.16"){
       "<h3><b>All Adults in the 2016 Census<b/></h3>
-      Explore the map! Hover cursor over the map to view the data.<br/>
-      Each numeric representation relates to one response to the census.<br/><br/>"
+      <ul>
+        <li>Explore the map! Hover cursor over the map to view the data.</li>
+        <li>Note: each numeric representation relates to a sum of responses to the census.</li>
+      </ul><br/><br/>"
     }
     else if(input$vars == "totalpop.17"){
       "<h3><b>All Adults in the 2017 Census<b/></h3>
-      Explore the map! Hover cursor over the map to view the data.<br/>
-      Each numeric representation relates to one response to the census.<br/><br/>"
+      <ul>
+        <li>Explore the map! Hover cursor over the map to view the data.</li>
+        <li>Note: each numeric representation relates to a sum of responses to the census.</li>
+      </ul><br/><br/>"
     }
     else if(input$vars == "change"){
       "<h3><b>The Net Change in Adult Population by State<b/></h3>
-      Explore the map! Hover cursor over the map to view the data.<br/>
-      Is this what you would expect?<br/>
-      Each numeric representation relates to one response to the census.<br/><br/>"
+      <ul>
+        <li>This data shows the flux of all adult individuals into and between states in the U.S. from the year 2016 to 2017.</li>
+        <li>Explore the map! Hover cursor over the map to view the data.<br/>
+            Is this what you would expect? Can you explain any of th trends?</li>
+        <li>Note: each numeric representation relates to a sum of responses to the census.</li>
+      </ul><br/><br/>"
     }
     else if(input$vars == "total_degrees.17"){
       "<h3><b>Adults with a Bachelor's Degree in 2017<b/></h3>
-      Explore the map! Hover cursor over the map to view the data.<br/>
-      Each numeric representation relates to one response to the census.<br/><br/>"
+      <ul>
+        <li>Explore the map! Hover cursor over the map to view the data.</li>
+        <li>Npte: each numeric representation relates to a sum of responses to the census.</li>
+      </ul><br/><br/>"
     }
     else if(input$vars == "total_degrees.16"){
       "<h3><b>Adults with a Bachelor's Degree in 2016<b/></h3>
-      Explore the map! Hover cursor over the map to view the data.<br/>
-      Each numeric representation relates to one response to the census.<br/><br/>"
+      <ul>
+        <li>Explore the map! Hover cursor over the map to view the data.</li>
+        <li>Note: each numeric representation relates to a sum of responses to the census.</li>
+      </ul><br/><br/>"
     }
     else{
       "<h3><b>The Net Change in Degree-Holding Adult Population by State<b/></h3>
-      This data shows the flux of individuals with degrees throughout the U.S.<br/>
-      Explore the map! Hover cursor over the map to view the data.<br/>
-      Is this what you would expect?<br/>
-      Each numeric representation relates to one response to the census.<br/><br/>"
+      <ul>
+        <li>This data shows the flux of individuals with degrees into and between states in the U.S. from the year 2016 to 2017.</li>
+        <li>Explore the map! Hover cursor over the map to view the data.<br/>
+      Is this what you would expect? How does it compare to the general population?</li>
+      <li>Note: each numeric representation relates to a sum of responses to the census.</li>
+      </ul><br/><br/>"
     }
   })
    
