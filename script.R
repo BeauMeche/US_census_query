@@ -60,7 +60,6 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
   # skinny data format.
   
   
-  
   # I want to show the most populated areas, so arrnaging in descending order
   # and grabbing the top 10 is the process.
   mutate(totalpop = total_estimate_population_18_to_24_years + total_estimate_population_25_to_34_years +
@@ -78,6 +77,32 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
   # later.
   
   write_rds("young_people_location")
+
+# extract the populations in each age group with bachelors or higher degrees and
+# add them up to see the "educated" people in 2017
+
+bach_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pattern = "bachelors_degree_or_higher")&
+                               str_detect(names(census_2017_nomargin), pattern = "total_estimate")|
+                               str_detect(names(census_2017_nomargin), pattern = "geography")] %>% 
+  mutate(total_degrees = total_estimate_population_65_years_and_over_bachelors_degree_or_higher +
+                         total_estimate_population_45_to_64_years_bachelors_degree_or_higher +
+                         total_estimate_population_35_to_44_years_bachelors_degree_or_higher +
+                         total_estimate_population_25_to_34_years_bachelors_degree_or_higher +
+                         total_estimate_population_18_to_24_years_bachelors_degree_or_higher) %>% 
+  select(geography, total_degrees)
+
+# repeat for 2016
+
+bach_2016 <- census_2016_nomargin[, str_detect(names(census_2017_nomargin), pattern = "bachelors_degree_or_higher")&
+                                    str_detect(names(census_2017_nomargin), pattern = "total_estimate")|
+                                    str_detect(names(census_2017_nomargin), pattern = "geography")] %>% 
+  mutate(total_degrees = total_estimate_population_65_years_and_over_bachelors_degree_or_higher +
+           total_estimate_population_45_to_64_years_bachelors_degree_or_higher +
+           total_estimate_population_35_to_44_years_bachelors_degree_or_higher +
+           total_estimate_population_25_to_34_years_bachelors_degree_or_higher +
+           total_estimate_population_18_to_24_years_bachelors_degree_or_higher) %>% 
+  select(geography, total_degrees)
+
 
 # this is the first plot in the app
 
@@ -140,10 +165,20 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
     
     # [Final - initial], not the other way!!
     
-    mutate(sum = totalpop.17 + totalpop.16) %>% select(-sum) %>% 
     mutate(change = ((totalpop.17 - totalpop.16))) %>% 
-    
     write_rds("aggregate_pops")
+  
+  # create an interim dataframe because I need to join 2 more frames to
+  # agg_total_pop now that I grabbed the degree holder data
+  
+  total_pop_deg_1 <- left_join(by = "geography", agg_total_pop, bach_2017, suffix = c("", ".17"))
+  
+  # This dataframe is agg_total_pop with degree holder data joined to it by
+  # state. Writing a new rds file for the shiny app to access. 
+  
+  total_plus_degs <- left_join(by = "geography", total_pop_deg_1, bach_2016, suffix = c(".17", ".16")) %>% 
+    mutate(deg_change = (total_degrees.17 - total_degrees.16)) %>% 
+    write_rds("aggregate_plus_degrees")
   
   
 # create the interactive plot for the app
