@@ -56,18 +56,29 @@ ui <- navbarPage("A Smoother Look at the US Census",
                    # tab-ception
                    
                    tabsetPanel(
+                     
+                     # Fill out tabs as usual
+                     
                      tabPanel("Where are the Young People?",
                               plotOutput("youth")),
                      tabPanel("Where are the Educated People?",
                               plotOutput("degree_states")))),
+      
+          # this is the DT searchable table, simply a DT output call inside the
+          # main panel
           
           tabPanel("Tabled Data",
                    mainPanel(DTOutput("table"))),
       
+          # Another tab of tabs, this is the HTML descriptions and citations and
+          # stuff for reference. 
+      
           tabPanel("About this Project",
+                   
                    tabsetPanel(
                    tabPanel("More Info",
                             htmlOutput("about")),
+                   
                    tabPanel("Acknowledgements",
                             htmlOutput("acknowledgements"))))
         )
@@ -85,7 +96,9 @@ server <- function(input, output) {
     
     # Can't comment between lines here bc of the quotes, but html is very picky.
     # Including a link to my github ad linkedin, and also my ackowledgement
-    # section. 
+    # section. I have a section describing my reasoning for the use of each
+    # graphic and each tab with further explanations and clarification of the
+    # relevant respective details.
     
     '<h2><b>Context, Explanation, and Citation</b></h2>
       <br/>
@@ -135,7 +148,13 @@ server <- function(input, output) {
       </ul>'
   })
   
+  # Name is self-explanatory, but this is where I give credit to whom it is due.
+  
   output$acknowledgements <- renderText({
+    
+    # This is the thanks portion. The project is mine, but I must give credit
+    # where it is due and these people aided me either in design or overcomming
+    # a technical difficulty. 
     
     '<h4><b>Acknoweldgements:</b></h4>
         <ul>
@@ -219,6 +238,9 @@ server <- function(input, output) {
     # 'selectInput' tool does this implicitly.
     
     if(input$vars == "totalpop.16"){
+      
+      # This is the title/description for the map of all adults in 2016.
+      
       "<h3><b>All Adults in the 2016 Census<b/></h3>
       <ul>
         <li>Explore the map! Hover cursor over the map to view the data.</li>
@@ -226,6 +248,9 @@ server <- function(input, output) {
       </ul><br/><br/>"
     }
     else if(input$vars == "totalpop.17"){
+      
+      # This is the title/description for the map of all adults in 2017.
+      
       "<h3><b>All Adults in the 2017 Census<b/></h3>
       <ul>
         <li>Explore the map! Hover cursor over the map to view the data.</li>
@@ -233,6 +258,9 @@ server <- function(input, output) {
       </ul><br/><br/>"
     }
     else if(input$vars == "change"){
+      
+      # This is the title/description for the map of total population flux.
+      
       "<h3><b>The Net Change in Adult Population by State<b/></h3>
       <ul>
         <li>This data shows the flux of all adult individuals into and between states in the U.S. from the year 2016 to 2017.</li>
@@ -242,6 +270,10 @@ server <- function(input, output) {
       </ul><br/><br/>"
     }
     else if(input$vars == "total_degrees.17"){
+      
+      # This is the title/description for the map of all adults with degrees in
+      # 2017.
+      
       "<h3><b>Adults with a Bachelor's Degree in 2017<b/></h3>
       <ul>
         <li>Explore the map! Hover cursor over the map to view the data.</li>
@@ -249,6 +281,10 @@ server <- function(input, output) {
       </ul><br/><br/>"
     }
     else if(input$vars == "total_degrees.16"){
+      
+      # This is the title/description for the map of all adults with degrees in
+      # 2016.      
+      
       "<h3><b>Adults with a Bachelor's Degree in 2016<b/></h3>
       <ul>
         <li>Explore the map! Hover cursor over the map to view the data.</li>
@@ -256,6 +292,10 @@ server <- function(input, output) {
       </ul><br/><br/>"
     }
     else{
+      
+      # This is the title/description for the map of total flux in population of
+      # degree-holders.
+      
       "<h3><b>The Net Change in Degree-Holding Adult Population by State<b/></h3>
       <ul>
         <li>This data shows the flux of individuals with degrees into and between states in the U.S. from the year 2016 to 2017.</li>
@@ -265,6 +305,13 @@ server <- function(input, output) {
       </ul><br/><br/>"
     }
   })
+  
+  # This(these) is the plot code for the main interactive maps. I only have 6
+  # plots so I fed the different options into a large if-else loop with a
+  # selection filter. I commented extensively on the first one, but for brevity
+  # left the subsequent plots alone. The only differences are the selected
+  # variabe, color asthetic choices, and the bin breaks. If you are looking into
+  # this, good luck! PS: thanks to Rstudio for the leads on this method.
    
   output$big_map <- renderLeaflet({ 
     
