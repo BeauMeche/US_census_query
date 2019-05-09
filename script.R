@@ -1,8 +1,8 @@
-# The goal in progress is to show 3 things: Total population mobility, mobility
-# of those with Bachelors degrees, and mobility of the same group of young
-# people with no degrees in the interest of seeing if there was a change.
-
-# Choose your tools wisely, tidyverse at the end to avoid overwriting
+# Choose your tools wisely, tidyverse at the end to avoid overwriting I did a
+# lot of testing and experimenting here, and not all of the code here has been
+# utilized in the app. When/ if I expand the app, I may add these in at that
+# point. That said, this is where I create the RDS files to use in the app for
+# brevity and efficiency's sake.
 
 library(stringr)
 library(janitor)
@@ -63,6 +63,7 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
   
   # I want to show the most populated areas, so arrnaging in descending order
   # and grabbing the top 10 is the process.
+  
   mutate(totalpop = total_estimate_population_18_to_24_years + total_estimate_population_25_to_34_years +
            total_estimate_population_35_to_44_years + total_estimate_population_45_to_64_years +
            total_estimate_population_65_years_and_over) %>% 
@@ -74,16 +75,21 @@ young_2017 <- census_2017_nomargin[, str_detect(names(census_2017_nomargin), pat
   arrange(desc(rat)) %>% 
   head(10) %>% 
   
-  # Write this specific df to a file so that it can be passed to the shiny app
-  # later.
+  # Write this specific dataframe to an rds file so that it can be passed to the
+  # shiny app later.
   
   write_rds("young_people_location")
+
+# This creates a dataframe of percentages of people with degrees by state. 
 
 percent_edu <- total_plus_degs %>% 
   mutate(percent_deg_17 = (total_degrees.17/totalpop.17)*100) %>% 
   select(geography, percent_deg_17) %>% 
   arrange(desc(percent_deg_17)) %>% head(10) %>% 
   write_rds("percent_educated")
+
+# This is the test code for the bar plot of percentages of educated people.
+# As the alighty Healey says, inversion is a good tool. 
 
 ggplot(percent_edu) +
   geom_bar(stat = "identity", aes(x = geography, y = percent_deg_17,
@@ -197,7 +203,6 @@ bach_2016 <- census_2016_nomargin[, str_detect(names(census_2017_nomargin), patt
   
   
 # create the interactive plot for the app
-  
   # This is the tigris shape file download
   
   states <- states()
@@ -331,8 +336,5 @@ bach_2016 <- census_2016_nomargin[, str_detect(names(census_2017_nomargin), patt
     tab_header("Change in Total Population Counts") %>% 
     tab_spanner(label = "In the first year of Trump's Presidency",
                 columns = vars(geography, totalpop.17, totalpop.16, change))
-  
-  
-  # Begin section for 
   
   

@@ -7,9 +7,10 @@ library(ggthemes)
 library(ggplot2)
 library(leaflet)
 library(DT)
+library(tigris)
 library(tidyverse)
 library(shinythemes)
-library(tigris)
+
 
 # Read in the rds files that were written for this app in the script. In order,
 # they are for the bar plot, then the map then the table.
