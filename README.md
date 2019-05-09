@@ -4,4 +4,6 @@
   * ### The core information was gathered from the US Census Bureau through their FactFinder tool. <a href='https://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml'>Check out FactFinder here.</a>
   * ### Map made possible through the <b>'leaflet'</b> and <b>'tigris'</b> packages. 
   
+* ### Here is the <b><a href='https://github.com/BeauMeche/US_census_query'>GitHub</a></b> for the project if you are interested in the process or methods employed. 
+  
 * ### The US Census Bureau is great at collecting data, but not great at organizing it, so this was a data cleaning journey for me. By professional standards I still have much to learn, but I am pleased with the progress. If you are interested in the progression, check out the initial CSV files.
