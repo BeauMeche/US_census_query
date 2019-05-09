@@ -1,6 +1,9 @@
 # Looking at the U.S. census 2016-2017
 
 * ### The goal of this project is to give a visualization of population change. Specifically, I wanted to look at whether degree-holding indifiduals were more significantly more mobile. I have also attached a few charts and other features that I found interesting along the way.
+
+* ### Here is the <b><a href='https://beaumeche.shinyapps.io/US_census_expo_2/'>finished app</a></b>.
+
   * ### The core information was gathered from the US Census Bureau through their FactFinder tool. <a href='https://factfinder.census.gov/faces/nav/jsf/pages/index.xhtml'>Check out FactFinder here.</a>
   * ### Map made possible through the <b>'leaflet'</b> and <b>'tigris'</b> packages. 
   
